@@ -13,8 +13,7 @@ object ConnectionPool {
   def connect(re: RedisEndpoint): Jedis = {
     val pool = pools.getOrElseUpdate(re,
       {
-        val poolConfig = if (re.ssl) {new RedisTLSConfig();}
-                         else {new JedisPoolConfig();}
+        val poolConfig = new JedisPoolConfig()
         poolConfig.setMaxTotal(250)
         poolConfig.setMaxIdle(32)
         poolConfig.setTestOnBorrow(false)
