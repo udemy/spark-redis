@@ -1,4 +1,4 @@
-package com.redislabs.provider.redis
+package com.redislabs.provider.redis;
 
 import redis.clients.jedis.JedisPoolConfig;
 
@@ -13,8 +13,12 @@ import javax.net.ssl.*;
 
 import java.util.Optional;
 
-
 public class RedisTLSConfig extends JedisPoolConfig {
+
+  private SSLSocketFactory sslSocketFactory;
+  private SSLParameters sslParameters;
+  private HostnameVerifier hostnameVerifier;
+
   public RedisTLSConfig() {
     TrustManager[] trustAllCerts = new TrustManager[]{
       new X509TrustManager() {
@@ -67,7 +71,6 @@ public class RedisTLSConfig extends JedisPoolConfig {
     this.sslParameters = sslParameters;
   }
 
-  }
 }
 
 
