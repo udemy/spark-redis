@@ -7,14 +7,18 @@ import java.util.concurrent.ConcurrentHashMap
 import scala.collection.JavaConversions._
 
 
+
 object ConnectionPool {
   @transient private lazy val pools: ConcurrentHashMap[RedisEndpoint, JedisPool] =
     new ConcurrentHashMap[RedisEndpoint, JedisPool]()
   def connect(re: RedisEndpoint): Jedis = {
     val pool = pools.getOrElseUpdate(re,
       {
-        val poolConfig = if (re.ssl) {new RedisTLSConfig();}
-                         else {new JedisPoolConfig();}
+        val poolConfig = new JedisPoolConfig();
+        val RedisTLSConfig = new RedisTLSConfig()
+        val sslSocketFactory = RedisTLSConfig.sslSocketFactory
+        val sslParameters = RedisTLSConfig.sslParameters
+        val hostnameVerifier = RedisTLSConfig.hostnameVerifier
         poolConfig.setMaxTotal(250)
         poolConfig.setMaxIdle(32)
         poolConfig.setTestOnBorrow(false)
@@ -23,7 +27,7 @@ object ConnectionPool {
         poolConfig.setMinEvictableIdleTimeMillis(60000)
         poolConfig.setTimeBetweenEvictionRunsMillis(30000)
         poolConfig.setNumTestsPerEvictionRun(-1)
-        new JedisPool(poolConfig, re.host, re.port, re.timeout, re.auth, re.dbNum, re.ssl)
+        new JedisPool(poolConfig, re.host, re.port, re.timeout, re.auth, re.dbNum, re.ssl, sslSocketFactory, sslParameters, hostnameVerifier)
       }
     )
     var sleepTime: Int = 4

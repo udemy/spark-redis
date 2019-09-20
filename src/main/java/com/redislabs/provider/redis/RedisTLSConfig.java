@@ -11,13 +11,12 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import javax.net.ssl.*;
 
-import java.util.Optional;
 
 public class RedisTLSConfig extends JedisPoolConfig {
 
-  private SSLSocketFactory sslSocketFactory;
-  private SSLParameters sslParameters;
-  private HostnameVerifier hostnameVerifier;
+  public SSLSocketFactory sslSocketFactory;
+  public SSLParameters sslParameters;
+  public HostnameVerifier hostnameVerifier;
 
   public RedisTLSConfig() {
     TrustManager[] trustAllCerts = new TrustManager[]{
@@ -50,25 +49,6 @@ public class RedisTLSConfig extends JedisPoolConfig {
         return true;
       }
     };
-  }
-
-  public void setHostnameVerifier(HostnameVerifier hostnameVerifier) {
-    this.hostnameVerifier = hostnameVerifier;
-  }
-  public Optional<SSLSocketFactory> getSslSocketFactory() {
-    return Optional.ofNullable(this.sslSocketFactory);
-  }
-
-  public void setSslSocketFactory(SSLSocketFactory sslSocketFactory) {
-    this.sslSocketFactory = sslSocketFactory;
-  }
-
-  public Optional<SSLParameters> getSslParameters() {
-    return Optional.ofNullable(this.sslParameters);
-  }
-
-  public void setSslParameters(SSLParameters sslParameters) {
-    this.sslParameters = sslParameters;
   }
 
 }
