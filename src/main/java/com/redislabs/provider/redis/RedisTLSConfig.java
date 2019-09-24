@@ -1,7 +1,5 @@
 package com.redislabs.provider.redis;
 
-import redis.clients.jedis.JedisPoolConfig;
-
 import java.security.cert.X509Certificate;
 
 import javax.net.ssl.SSLContext;
@@ -12,13 +10,13 @@ import javax.net.ssl.X509TrustManager;
 import javax.net.ssl.*;
 
 
-public class RedisTLSConfig extends JedisPoolConfig {
+public class RedisTLSConfig {
 
-  public SSLSocketFactory sslSocketFactory;
-  public SSLParameters sslParameters;
-  public HostnameVerifier hostnameVerifier;
+  private SSLSocketFactory sslSocketFactory;
+  private SSLParameters sslParameters;
+  private HostnameVerifier hostnameVerifier;
 
-  public RedisTLSConfig() {
+  RedisTLSConfig() {
     TrustManager[] trustAllCerts = new TrustManager[]{
       new X509TrustManager() {
         public java.security.cert.X509Certificate[] getAcceptedIssuers() {
@@ -44,11 +42,21 @@ public class RedisTLSConfig extends JedisPoolConfig {
     }
 
     hostnameVerifier = new HostnameVerifier() {
-      @Override
+        @Override
       public boolean verify(String s, SSLSession sslSession) {
         return true;
       }
     };
+  }
+
+  public SSLSocketFactory getSSLSocketFactory() {
+      return this.sslSocketFactory;
+  }
+  public SSLParameters getSSLParameters() {
+      return this.sslParameters;
+  }
+  public HostnameVerifier getHostnameVerifier() {
+      return this.hostnameVerifier;
   }
 
 }

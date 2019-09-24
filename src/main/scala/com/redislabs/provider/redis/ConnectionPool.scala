@@ -16,9 +16,9 @@ object ConnectionPool {
       {
         val poolConfig = new JedisPoolConfig();
         val RedisTLSConfig = new RedisTLSConfig()
-        val sslSocketFactory = RedisTLSConfig.sslSocketFactory
-        val sslParameters = RedisTLSConfig.sslParameters
-        val hostnameVerifier = RedisTLSConfig.hostnameVerifier
+        val sslSocketFactory = RedisTLSConfig.getSSLSocketFactory()
+        val sslParameters = RedisTLSConfig.getSSLParameters()
+        val hostnameVerifier = RedisTLSConfig.getHostnameVerifier()
         poolConfig.setMaxTotal(250)
         poolConfig.setMaxIdle(32)
         poolConfig.setTestOnBorrow(false)
