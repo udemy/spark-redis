@@ -230,7 +230,7 @@ class RedisConfig(val initialHost: RedisEndpoint) extends Serializable {
 
       //simply re-enter this function witht he master host/port
       getNonClusterNodes(initialHost = new RedisEndpoint(host, port,
-        initialHost.auth, initialHost.dbNum))
+        initialHost.auth, initialHost.dbNum, initialHost.timeout, initialHost.ssl))
 
     } else {
       //this is a master - take its slaves
@@ -246,7 +246,7 @@ class RedisConfig(val initialHost: RedisEndpoint) extends Serializable {
       val range = nodes.length
       (0 until range).map(i =>
         RedisNode(RedisEndpoint(nodes(i)._1, nodes(i)._2, initialHost.auth, initialHost.dbNum,
-          initialHost.timeout),
+          initialHost.timeout, initialHost.ssl),
           0, 16383, i, range)).toArray
     }
   }
@@ -276,7 +276,7 @@ class RedisConfig(val initialHost: RedisEndpoint) extends Serializable {
           val host = SafeEncoder.encode(node.get(0).asInstanceOf[Array[scala.Byte]])
           val port = node.get(1).toString.toInt
           RedisNode(RedisEndpoint(host, port, initialHost.auth, initialHost.dbNum,
-            initialHost.timeout),
+            initialHost.timeout, initialHost.ssl),
             sPos,
             ePos,
             i,
