@@ -273,6 +273,18 @@ class RedisContext(@transient val sc: SparkContext) extends Serializable {
   }
 
   /**
+    * @param kvs      Pair RDD of hashName/K/V
+    * @param ttl      time to live
+    */
+  def toRedisHASH2(kvs: RDD[(String, (String, String))], ttl: Int = 0)
+                 (implicit
+                  redisConfig: RedisConfig = RedisConfig.fromSparkConf(sc.getConf),
+                  readWriteConfig: ReadWriteConfig = ReadWriteConfig.fromSparkConf(sc.getConf)) {
+    kvs.foreachPartition(partition => setHash2(partition, ttl, redisConfig, readWriteConfig))
+  }
+
+
+  /**
     * @param kvs      Pair RDD of K/V
     * @param zsetName target zset's name which hold all the kvs
     * @param ttl      time to live
@@ -389,6 +401,28 @@ object RedisContext extends Serializable {
     pipeline.sync()
     conn.close()
   }
+
+  /**
+    * @param arr hashName/k/vs which should be saved in the target host
+    *            save all the k/vs to hashName(list type) to the target host
+    * @param ttl time to live
+    */
+  def setHash2(arr: Iterator[(String, (String, String))], ttl: Int, redisConfig: RedisConfig,
+              readWriteConfig: ReadWriteConfig) {
+    implicit val rwConf: ReadWriteConfig = readWriteConfig
+    arr.map(h => (h._1, h)).toArray.groupBy(_._1).
+      mapValues(a => a.map(p => p._2)).foreach { x =>
+      val hashName = x._1
+      val conn = redisConfig.connectionForKey(hashName)
+      val pipeline = foreachWithPipelineNoLastSync(conn, x._2) { case (pipeline, (hashName, (k, v))) =>
+        pipeline.hset(hashName, k, v)
+      }
+      if (ttl > 0) pipeline.expire(hashName, ttl)
+      pipeline.sync()
+      conn.close()
+    }
+  }
+
 
   /**
     * @param zsetName
