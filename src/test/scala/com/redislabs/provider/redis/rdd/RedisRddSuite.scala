@@ -96,6 +96,7 @@ trait RedisRddSuite extends SparkRedisSuite with Keys with Matchers {
   }
 
   test("toRedisHASH2") {
+    val hashprefix : String = "rdd_test:"
     val wcnts_for_hash2 = sc.parallelize(contentWords)
       .map { w =>
         (w, 1)
@@ -104,11 +105,11 @@ trait RedisRddSuite extends SparkRedisSuite with Keys with Matchers {
         _ + _
       }
       .map { x =>
-        ("rdd_test:" + x._1, (x._1, x._2.toString))
+        (hashprefix + x._1, (x._1, x._2.toString))
       }
 
     sc.toRedisHASH2(wcnts_for_hash2, 2)
-    val rdd = sc.fromRedisKeyPattern("rdd_test:*").getHash()
+    val rdd = sc.fromRedisKeyPattern(hashprefix + "*").getHash()
     val hashKeys = rdd.sortBy(_._1).collect
     val wcnts = contentWords.map((_, 1)).groupBy(_._1).
       map(x => (x._1, x._2.map(_._2).sum.toString)).toArray.sortBy(_._1)
