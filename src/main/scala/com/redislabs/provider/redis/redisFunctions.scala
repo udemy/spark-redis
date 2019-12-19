@@ -276,11 +276,11 @@ class RedisContext(@transient val sc: SparkContext) extends Serializable {
     * @param kvs      Pair RDD of hashName/K/V
     * @param ttl      time to live
     */
-  def toRedisHASH2(kvs: RDD[(String, (String, String))], ttl: Int = 0)
+  def toRedisNamedHASH(kvs: RDD[(String, (String, String))], ttl: Int = 0)
                  (implicit
                   redisConfig: RedisConfig = RedisConfig.fromSparkConf(sc.getConf),
                   readWriteConfig: ReadWriteConfig = ReadWriteConfig.fromSparkConf(sc.getConf)) {
-    kvs.foreachPartition(partition => setHash2(partition, ttl, redisConfig, readWriteConfig))
+    kvs.foreachPartition(partition => setNamedHash(partition, ttl, redisConfig, readWriteConfig))
   }
 
 
@@ -404,10 +404,9 @@ object RedisContext extends Serializable {
 
   /**
     * @param arr hashName/k/vs which should be saved in the target host
-    *            save all the k/vs to hashName(list type) to the target host
-    * @param ttl time to live
+    * @param ttl time to live(seconds)
     */
-  def setHash2(arr: Iterator[(String, (String, String))], ttl: Int, redisConfig: RedisConfig,
+  def setNamedHash(arr: Iterator[(String, (String, String))], ttl: Int, redisConfig: RedisConfig,
               readWriteConfig: ReadWriteConfig) {
     implicit val rwConf: ReadWriteConfig = readWriteConfig
     arr.map(h => (h._1, h)).toArray.groupBy(_._1).
