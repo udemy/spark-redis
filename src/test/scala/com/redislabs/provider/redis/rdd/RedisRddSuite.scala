@@ -105,7 +105,7 @@ trait RedisRddSuite extends SparkRedisSuite with Keys with Matchers {
         _ + _
       }
       .map { x =>
-        (hashprefix + x._1, (x._1, x._2.toString))
+        (hashprefix + x._1, x._1, x._2.toString)
       }
 
     sc.toRedisNamedHASH(wcnts_for_hash2, 2)
@@ -144,7 +144,7 @@ trait RedisRddSuite extends SparkRedisSuite with Keys with Matchers {
         _ + _
       }
       .map { x =>
-        (prefix + x._1, (x._1, x._2.toString))
+        (prefix + x._1, x._1, x._2.toString)
       }
     val wds = sc.parallelize(contentWords)
     sc.toRedisKV(wcnts, expireTime)
